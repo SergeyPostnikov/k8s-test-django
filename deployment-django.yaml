@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: django
+        image: django_app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        - containerPort: 8080
+        env:
+        - name: SECRET_KEY
+          value: '1djkcolakslLKX'
+        - name: DATABASE_URL
+          value: postgres://taiga:taiga@10.20.24.242:5432/taiga
+        - name: ALLOWED_HOSTS
+          value: '*'
+        - name: DEBUG
+          value: True
