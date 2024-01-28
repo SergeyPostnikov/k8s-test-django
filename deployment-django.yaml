@@ -19,15 +19,9 @@ spec:
         ports:
         - containerPort: 80
         - containerPort: 8080
-        env:
-        - name: SECRET_KEY
-          value: '1djkcolakslLKX'
-        - name: DATABASE_URL
-          value: postgres://taiga:taiga@10.20.24.242:5432/taiga
-        - name: ALLOWED_HOSTS
-          value: '*'
-        - name: DEBUG
-          value: "True"
+        envFrom:
+        - configMapRef:
+            name: django-config-v3
 ---
 apiVersion: v1
 kind: Service

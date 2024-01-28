@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config-v3
+data:
+  SECRET_KEY: '1djkcolakslLKX'
+  DATABASE_URL: 'postgres://taiga:taiga@10.20.24.242:5432/taiga'
+  ALLOWED_HOSTS: '*'
+  DEBUG: 'True'
