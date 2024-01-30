@@ -22,7 +22,7 @@ $ docker compose run --rm web ./manage.py createsuperuser
 
 For fine-tuning Docker Compose, use environment variables. Their names differ from those set by the docker image to avoid naming conflicts. Several images are configured within docker-compose.yaml, each with its own environment variables, so their names may accidentally overlap. To avoid conflicts, prefixes by the service name are added to the environment variable names. You can find the list of available variables inside the docker-compose.yml file.
 
-## How to run in a cluster
+## How to run in a minikube cluster
 - The file .\kubernetes\deployment-django.yaml specifies the image from which the pods will be launched: image: django_app.
 To create the image, use:
 ```shell
