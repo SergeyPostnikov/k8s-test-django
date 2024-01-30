@@ -1,77 +1,69 @@
 # Django Site
 
-Докеризированный сайт на Django для экспериментов с Kubernetes.
+Dockerized Django site for experiments with Kubernetes.
 
-Внутри контейнера Django приложение запускается с помощью Nginx Unit, не путать с Nginx. Сервер Nginx Unit выполняет сразу две функции: как веб-сервер он раздаёт файлы статики и медиа, а в роли сервера-приложений он запускает Python и Django. Таким образом Nginx Unit заменяет собой связку из двух сервисов Nginx и Gunicorn/uWSGI. [Подробнее про Nginx Unit](https://unit.nginx.org/).
+Inside the Django container, it runs with Nginx Unit (not to be confused with Nginx). The Nginx Unit server serves static and media files as a web server and acts as an application server, running Python and Django. Thus, Nginx Unit replaces the combination of two services: Nginx and Gunicorn/uWSGI. [Learn more about Nginx Unit](https://unit.nginx.org/).
 
-## Как подготовить окружение к локальной разработке
+## How to run the local version
 
-Код в репозитории полностью докеризирован, поэтому для запуска приложения вам понадобится Docker. Инструкции по его установке ищите на официальных сайтах:
-
-- [Get Started with Docker](https://www.docker.com/get-started/)
-
-Вместе со свежей версией Docker к вам на компьютер автоматически будет установлен Docker Compose. Дальнейшие инструкции будут его активно использовать.
-
-## Как запустить сайт для локальной разработки
-
-Запустите базу данных и сайт:
+Run the database and the site:
 
 ```shell
 $ docker compose up
 ```
 
-В новом терминале, не выключая сайт, запустите несколько команд:
+In a new terminal, without turning off the site, run the commands to set up the database:
+
 
 ```shell
-$ docker compose run --rm web ./manage.py migrate  # создаём/обновляем таблицы в БД
-$ docker compose run --rm web ./manage.py createsuperuser  # создаём в БД учётку суперпользователя
+$ docker compose run --rm web ./manage.py migrate  
+$ docker compose run --rm web ./manage.py createsuperuser  
 ```
 
-Готово. Сайт будет доступен по адресу [http://127.0.0.1:8080](http://127.0.0.1:8080). Вход в админку находится по адресу [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/).
+For fine-tuning Docker Compose, use environment variables. Their names differ from those set by the docker image to avoid naming conflicts. Several images are configured within docker-compose.yaml, each with its own environment variables, so their names may accidentally overlap. To avoid conflicts, prefixes by the service name are added to the environment variable names. You can find the list of available variables inside the docker-compose.yml file.
 
-## Как вести разработку
-
-Все файлы с кодом django смонтированы внутрь докер-контейнера, чтобы Nginx Unit сразу видел изменения в коде и не требовал постоянно пересборки докер-образа -- достаточно перезапустить сервисы Docker Compose.
-
-### Как обновить приложение из основного репозитория
-
-Чтобы обновить приложение до последней версии подтяните код из центрального окружения и пересоберите докер-образы:
-
-``` shell
-$ git pull
-$ docker compose build
-```
-
-После обновлении кода из репозитория стоит также обновить и схему БД. Вместе с коммитом могли прилететь новые миграции схемы БД, и без них код не запустится.
-
-Чтобы не гадать заведётся код или нет — запускайте при каждом обновлении команду `migrate`. Если найдутся свежие миграции, то команда их применит:
-
+## How to run in a cluster
+- The file .\kubernetes\deployment-django.yaml specifies the image from which the pods will be launched: image: django_app.
+To create the image, use:
 ```shell
-$ docker compose run --rm web ./manage.py migrate
-…
-Running migrations:
-  No migrations to apply.
+cd backend_main_django
+eval $(minikube docker-env)
+docker build -t django_app .
+```
+- Create a Postgres pod using Helm: 
+```shell
+helm install django-db oci://registry-1.docker.io/bitnamicharts/postgresql`
+```
+- [Create a database](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)
+- Create a django-config.yml file in the kubernetes directory with the following manifest:
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+data:
+  DATABASE_URL: postgres://USER:PASSWORD@HOST:PORT/NAME
+  SECRET_KEY: 123456
+  DEBUG: 'false'
+  ALLOWED_HOSTS: star-burger.test
+```
+- Apply the created ConfigMap: 
+```shell
+kubectl apply -f .\kubernetes\django-config.yml
+```
+- Apply all manifests from the kubernetes folder: 
+```
+kubectl apply -f .\kubernetes\
 ```
 
-### Как добавить библиотеку в зависимости
+## Environment Variables
 
-В качестве менеджера пакетов для образа с Django используется pip с файлом requirements.txt. Для установки новой библиотеки достаточно прописать её в файл requirements.txt и запустить сборку докер-образа:
+The Django image reads settings from environment variables:
 
-```sh
-$ docker compose build web
-```
+`SECRET_KEY` -- Django's mandatory secret setting. It is the salt for generating hashes. The value can be anything, it's essential that it is not known to anyone. [Django Documentation](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key).
 
-Аналогичным образом можно удалять библиотеки из зависимостей.
+`DEBUG` -- Django's setting to enable the debug mode. It takes values TRUE or FALSE. [Django Documentation](https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-DEBUG).
 
-<a name="env-variables"></a>
-## Переменные окружения
+`ALLOWED_HOSTS` -- Django's setting with a list of allowed addresses. If a request comes to another address, the site will respond with a 400 error. You can list multiple addresses separated by commas, for example, 127.0.0.1,192.168.0.1,site.test. [Django Documentation](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
 
-Образ с Django считывает настройки из переменных окружения:
-
-`SECRET_KEY` -- обязательная секретная настройка Django. Это соль для генерации хэшей. Значение может быть любым, важно лишь, чтобы оно никому не было известно. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key).
-
-`DEBUG` -- настройка Django для включения отладочного режима. Принимает значения `TRUE` или `FALSE`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-DEBUG).
-
-`ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
-
-`DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
+`DATABASE_URL` -- Address to connect to the PostgreSQL database. The site does not support other databases. [Format of the record](https://github.com/jacobian/dj-database-url#url-schema).
