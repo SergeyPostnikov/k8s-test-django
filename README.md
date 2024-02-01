@@ -23,6 +23,10 @@ $ docker compose run --rm web ./manage.py createsuperuser
 For fine-tuning Docker Compose, use environment variables. Their names differ from those set by the docker image to avoid naming conflicts. Several images are configured within docker-compose.yaml, each with its own environment variables, so their names may accidentally overlap. To avoid conflicts, prefixes by the service name are added to the environment variable names. You can find the list of available variables inside the docker-compose.yml file.
 
 ## How to run in a minikube cluster
+- before start you could add local alias to minikube ip
+```bash
+echo "$(minikube ip) your.domain.test" | sudo tee -a /etc/hosts
+```
 - The file .\kubernetes\deployment-django.yaml specifies the image from which the pods will be launched: image: django_app.
 To create the image, use:
 ```shell
@@ -35,25 +39,24 @@ docker build -t django_app .
 helm install django-db oci://registry-1.docker.io/bitnamicharts/postgresql`
 ```
 - [Create a database](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)
-- Create a django-config.yml file in the kubernetes directory with the following manifest:
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: django-config
-data:
-  DATABASE_URL: postgres://USER:PASSWORD@HOST:PORT/NAME
-  SECRET_KEY: 123456
-  DEBUG: 'false'
-  ALLOWED_HOSTS: star-burger.test
+
+## Creating a Secret for Django
+
+For secure storage of confidential data in Kubernetes, we will be using secrets. Below are instructions for creating a secret for Django.
+
+- Open a terminal and execute the following command to create the secret:
+
+```bash
+   kubectl create secret generic django-secrets \
+     --from-literal=SECRET_KEY=your_key \
+     --from-literal=DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/NAME \
+     --from-literal=ALLOWED_HOSTS=localhost,127.0.0.1,your.domain.test \
+     --from-literal=DEBUG=True
 ```
-- Apply the created ConfigMap: 
-```shell
-kubectl apply -f .\kubernetes\django-config.yml
-```
+
 - Apply all manifests from the kubernetes folder: 
 ```
-kubectl apply -f .\kubernetes\
+kubectl apply -f kubernetes\
 ```
 
 ## Environment Variables
