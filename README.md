@@ -62,9 +62,8 @@ For secure storage of confidential data in Kubernetes, we will be using secrets.
 
 3. Now you can use this secret in your Kubernetes manifests (e.g., in deployments and config maps) to securely store confidential information.
 
-```
-
 Replace the values of `SECRET_KEY`, `DATABASE_URL`, `ALLOWED_HOSTS`, and `DEBUG` with the actual values you use in your Django application.
+
 - Apply all manifests from the kubernetes folder: 
 ```
 kubectl apply -f kubernetes\
