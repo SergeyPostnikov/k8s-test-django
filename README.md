@@ -40,11 +40,10 @@ helm install django-db oci://registry-1.docker.io/bitnamicharts/postgresql`
 ```
 - [Create a database](https://medium.com/coding-blocks/creating-user-database-and-adding-access-on-postgresql-8bfcd2f4a91e)
 
-## Creating a Secret for Django
+### Creating a Secret for Django
 
 For secure storage of confidential data in Kubernetes, we will be using secrets. Below are instructions for creating a secret for Django.
-
-- Open a terminal and execute the following command to create the secret:
+1. Open a terminal and execute the following command to create the secret:
 
 ```bash
    kubectl create secret generic django-secrets \
@@ -53,7 +52,19 @@ For secure storage of confidential data in Kubernetes, we will be using secrets.
      --from-literal=ALLOWED_HOSTS=localhost,127.0.0.1,your.domain.test \
      --from-literal=DEBUG=True
 ```
+2. Ensure that the secret has been successfully created by running:
 
+   ```bash
+   kubectl get secret django-secrets
+   ```
+
+   You should see information about the created secret, including its type (Opaque) and data.
+
+3. Now you can use this secret in your Kubernetes manifests (e.g., in deployments and config maps) to securely store confidential information.
+
+```
+
+Replace the values of `SECRET_KEY`, `DATABASE_URL`, `ALLOWED_HOSTS`, and `DEBUG` with the actual values you use in your Django application.
 - Apply all manifests from the kubernetes folder: 
 ```
 kubectl apply -f kubernetes\
