@@ -22,15 +22,3 @@ spec:
         envFrom:
         - configMapRef:
             name: django-config-v3
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: django-service
-spec:
-  selector:
-    app: django
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
