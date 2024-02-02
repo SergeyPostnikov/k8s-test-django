@@ -22,3 +22,5 @@ spec:
         envFrom:
           - secretRef:
               name: django-secrets
+          - configMapRef:
+            name: django-config-v3

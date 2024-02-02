@@ -49,8 +49,6 @@ For secure storage of confidential data in Kubernetes, we will be using secrets.
    kubectl create secret generic django-secrets \
      --from-literal=SECRET_KEY=your_key \
      --from-literal=DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/NAME \
-     --from-literal=ALLOWED_HOSTS=localhost,127.0.0.1,your.domain.test \
-     --from-literal=DEBUG=True
 ```
 2. Ensure that the secret has been successfully created by running:
 
@@ -61,6 +59,25 @@ For secure storage of confidential data in Kubernetes, we will be using secrets.
    You should see information about the created secret, including its type (Opaque) and data.
 
 3. Now you can use this secret in your Kubernetes manifests (e.g., in deployments and config maps) to securely store confidential information.
+
+
+```bash
+   kubectl create secret generic django-secrets \
+     --from-literal=SECRET_KEY=your_key \
+     --from-literal=DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/NAME \
+```
+## Creating a configMap for Django
+- Create a django-config.yml file in the kubernetes directory with the following manifest:
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+data:
+  DEBUG: 'False'
+  ALLOWED_HOSTS: star-burger.test
+```
+
 
 Replace the values of `SECRET_KEY`, `DATABASE_URL`, `ALLOWED_HOSTS`, and `DEBUG` with the actual values you use in your Django application.
 
