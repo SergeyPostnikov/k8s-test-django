@@ -23,4 +23,4 @@ spec:
           - secretRef:
               name: django-secrets
           - configMapRef:
-            name: django-config-v3
+              name: django-config-v3
