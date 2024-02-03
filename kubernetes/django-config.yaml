@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config-v3
+data:
+  ALLOWED_HOSTS: 'localhost,127.0.0.1,app.coolsite.test'
+  DEBUG: 'False'
