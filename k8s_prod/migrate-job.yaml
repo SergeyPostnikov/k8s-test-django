@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-jobs
+spec:
+  ttlSecondsAfterFinished: 0
+  template:
+    spec:
+      containers:
+      - name: migrate-django
+        image: django_app
+        imagePullPolicy: Never
+        envFrom:
+        - configMapRef:
+            name: django-config-v3
+        command: ["python",  "manage.py", "makemigrations", "--noinput"]
+      restartPolicy: Never
+  backoffLimit: 4
