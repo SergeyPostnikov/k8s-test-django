@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: django-config-v3
+  name: django-config-v1
+  namespace: edu-furious-nobel
 data:
-  ALLOWED_HOSTS: 'localhost,127.0.0.1,app.coolsite.test'
+  ALLOWED_HOSTS: 'localhost,127.0.0.1,edu-furious-nobel.sirius-k8s.dvmn.org'
   DEBUG: 'False'

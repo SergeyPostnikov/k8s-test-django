@@ -2,17 +2,20 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: migrate-jobs
+  namespace: edu-furious-nobel
 spec:
-  ttlSecondsAfterFinished: 0
+  ttlSecondsAfterFinished: 100
   template:
     spec:
       containers:
       - name: migrate-django
-        image: django_app
-        imagePullPolicy: Never
+        image: postnikov2017/django_app:latest
+        imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
-            name: django-config-v3
+            name: django-config-v1
+        - secretRef:
+            name: django-secrets
         command: ["python",  "manage.py", "makemigrations", "--noinput"]
       restartPolicy: Never
   backoffLimit: 4

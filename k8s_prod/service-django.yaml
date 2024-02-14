@@ -2,10 +2,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: django-service
+  namespace: edu-furious-nobel
 spec:
   selector:
     app: django
+  type: nodePort
   ports:
   - protocol: TCP
     port: 80
     targetPort: 80
+    nodePort: 30311

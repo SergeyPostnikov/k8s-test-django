@@ -25,3 +25,4 @@ spec:
               name: django-secrets
           - configMapRef:
               name: django-config-v1
+        restartPolicy: OnFailure
