@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 /env/
-
+/test/
 # C extensions
 *.so
 # media folder

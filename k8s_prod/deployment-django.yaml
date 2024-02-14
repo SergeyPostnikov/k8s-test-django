@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: django-deployment
+  namespace: edu-furious-nobel
 spec:
   replicas: 1
   selector:
@@ -14,7 +15,7 @@ spec:
     spec:
       containers:
       - name: django
-        image: django_app:latest
+        image: postnikov2017/django_app:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -23,4 +24,4 @@ spec:
           - secretRef:
               name: django-secrets
           - configMapRef:
-              name: django-config-v3
+              name: django-config-v1
